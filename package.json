@@ -10,7 +10,7 @@
   },
   "author": "linus wafula saisi <saisilinus.work@gmail.com>",
   "license": "MIT",
-  "type": "module",
+  "type": "commonjs",
   "engines": {
     "node": ">=18"
   },
