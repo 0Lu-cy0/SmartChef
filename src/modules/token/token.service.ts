@@ -134,3 +134,50 @@ export const generateVerifyEmailToken = async (user: IUserDoc): Promise<string> 
   await saveToken(verifyEmailToken, user.id, expires, tokenTypes.VERIFY_EMAIL);
   return verifyEmailToken;
 };
+
+/**
+ * Generate OTP for email verification
+ * @returns {string}
+ */
+export const generateOTP = (): string => {
+  return Math.floor(100000 + Math.random() * 900000).toString();
+};
+
+/**
+ * Generate and save email OTP
+ * @param {mongoose.Types.ObjectId} userId
+ * @returns {Promise<string>}
+ */
+export const generateEmailOTP = async (userId: mongoose.Types.ObjectId): Promise<string> => {
+  const otp = generateOTP();
+  const expires = moment().add(config.jwt.verifyEmailExpirationMinutes, 'minutes');
+  await saveToken(otp, userId, expires, tokenTypes.EMAIL_OTP);
+  return otp;
+};
+
+/**
+ * Verify email OTP
+ * @param {mongoose.Types.ObjectId} userId
+ * @param {string} otp
+ * @returns {Promise<boolean>}
+ */
+export const verifyEmailOTP = async (userId: mongoose.Types.ObjectId, otp: string): Promise<boolean> => {
+  const otpDoc = await Token.findOne({
+    token: otp,
+    type: tokenTypes.EMAIL_OTP,
+    user: userId,
+    blacklisted: false,
+  });
+  
+  if (!otpDoc) {
+    return false;
+  }
+  
+  if (moment().isAfter(otpDoc.expires)) {
+    await otpDoc.deleteOne();
+    return false;
+  }
+  
+  await otpDoc.deleteOne();
+  return true;
+};

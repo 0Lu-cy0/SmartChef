@@ -93,3 +93,28 @@ export const verifyEmail = async (verifyEmailToken: any): Promise<IUserDoc | nul
     throw new ApiError(httpStatus.UNAUTHORIZED, 'Email verification failed');
   }
 };
+
+/**
+ * Verify email OTP
+ * @param {string} userId
+ * @param {string} otp
+ * @returns {Promise<IUserDoc>}
+ */
+export const verifyEmailOTP = async (userId: string, otp: string): Promise<IUserDoc> => {
+  const user = await getUserById(new mongoose.Types.ObjectId(userId));
+  if (!user) {
+    throw new ApiError(httpStatus.NOT_FOUND, 'User not found');
+  }
+  
+  const isValid = await import('../token/token.service').then(m => m.verifyEmailOTP(user.id, otp));
+  if (!isValid) {
+    throw new ApiError(httpStatus.UNAUTHORIZED, 'Invalid or expired OTP');
+  }
+  
+  const updatedUser = await updateUserById(user.id, { isEmailVerified: true });
+  if (!updatedUser) {
+    throw new ApiError(httpStatus.INTERNAL_SERVER_ERROR, 'Failed to update user');
+  }
+  
+  return updatedUser;
+};

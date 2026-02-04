@@ -122,3 +122,31 @@ export const sendAccountCreated = async (to: string, name: string): Promise<void
   <p><strong>Team</strong></p></div>`;
   await sendEmail(to, subject, text, html);
 };
+
+/**
+ * Send OTP email for verification
+ * @param {string} to
+ * @param {string} otp
+ * @param {string} name
+ * @returns {Promise<void>}
+ */
+export const sendOTPEmail = async (to: string, otp: string, name: string): Promise<void> => {
+  const subject = 'Email Verification OTP';
+  const text = `Hi ${name},
+  Your OTP for email verification is: ${otp}
+  This OTP will expire in 10 minutes.
+  If you did not create an account, please ignore this email.
+  Regards,
+  Team`;
+  const html = `<div style="margin:30px; padding:30px; border:1px solid black; border-radius: 20px 10px;">
+    <h4><strong>Hi ${name},</strong></h4>
+    <p>Thank you for registering! To complete your registration, please verify your email address.</p>
+    <p>Your OTP for email verification is:</p>
+    <h2 style="color: #4CAF50; letter-spacing: 5px; text-align: center;">${otp}</h2>
+    <p><strong>This OTP will expire in 10 minutes.</strong></p>
+    <p>If you did not create an account, please ignore this email.</p>
+    <p>Regards,</p>
+    <p><strong>Team</strong></p>
+  </div>`;
+  await sendEmail(to, subject, text, html);
+};

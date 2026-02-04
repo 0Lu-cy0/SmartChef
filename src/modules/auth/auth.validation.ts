@@ -51,3 +51,10 @@ export const verifyEmail = {
     token: Joi.string().required(),
   }),
 };
+
+export const verifyOTP = {
+  body: Joi.object().keys({
+    userId: Joi.string().required(),
+    otp: Joi.string().required().length(6).pattern(/^[0-9]+$/),
+  }),
+};

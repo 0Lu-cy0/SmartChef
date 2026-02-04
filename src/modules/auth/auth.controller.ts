@@ -8,8 +8,13 @@ import { emailService } from '../email';
 
 export const register = catchAsync(async (req: Request, res: Response) => {
   const user = await userService.registerUser(req.body);
-  const tokens = await tokenService.generateAuthTokens(user);
-  res.status(httpStatus.CREATED).send({ user, tokens });
+  const otp = await tokenService.generateEmailOTP(user.id);
+  await emailService.sendOTPEmail(user.email, otp, user.name);
+  res.status(httpStatus.CREATED).send({ 
+    message: 'Registration successful. Please check your email for OTP verification.',
+    userId: user.id,
+    email: user.email
+  });
 });
 
 export const login = catchAsync(async (req: Request, res: Response) => {
@@ -49,4 +54,11 @@ export const sendVerificationEmail = catchAsync(async (req: Request, res: Respon
 export const verifyEmail = catchAsync(async (req: Request, res: Response) => {
   await authService.verifyEmail(req.query['token']);
   res.status(httpStatus.NO_CONTENT).send();
+});
+
+export const verifyOTP = catchAsync(async (req: Request, res: Response) => {
+  const { userId, otp } = req.body;
+  const user = await authService.verifyEmailOTP(userId, otp);
+  const tokens = await tokenService.generateAuthTokens(user);
+  res.send({ user, tokens });
 });
