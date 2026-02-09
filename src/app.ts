@@ -52,6 +52,17 @@ if (config.env === 'production') {
 // v1 api routes
 app.use('/v1', routes);
 
+// public landing endpoint
+app.get('/', (_req, res) => {
+  res.json({
+    name: 'create-nodejs-ts-app',
+    description: 'Node express mongoose typescript boilerplate',
+    purpose: 'Backend service for transactional emails',
+    version: '3.0.11',
+    status: 'running'
+  });
+});
+
 // send back a 404 error for any unknown api request
 app.use((_req, _res, next) => {
   next(new ApiError(httpStatus.NOT_FOUND, 'Not found'));
